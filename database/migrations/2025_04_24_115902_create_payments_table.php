@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('amount', 10, 2);
+            $table->string('receipt_image');
+            $table->enum('type', ['registration', 'monthly_dues']);
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->dateTime('payment_date');
+            $table->dateTime('expiry_date')->nullable();
             $table->timestamps();
         });
     }
