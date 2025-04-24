@@ -25,7 +25,7 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'team_id',
-        'is_admin',
+        'role',
         'is_verified',
     ];
 
@@ -49,7 +49,6 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_admin' => 'boolean',
             'is_verified' => 'boolean',
         ];
     }
@@ -73,15 +72,87 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return [
-            'is_admin' => $this->is_admin,
-            'username' => $this->username,
-        ];
+        return [];
     }
 
     // Keep all the existing relationships and methods...
-    // public function team()
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function statistics()
+    {
+        return $this->hasMany(PlayerStatistic::class);
+    }
+
+    // public function goals()
     // {
-    //     return $this->belongsTo(Team::class);
+    //     return $this->hasMany(Goal::class, 'player_id');
     // }
+
+    // public function assists()
+    // {
+    //     return $this->hasMany(Assist::class, 'player_id');
+    // }
+
+    // public function cards()
+    // {
+    //     return $this->hasMany(Card::class, 'player_id');
+    // }
+
+    // public function handballs()
+    // {
+    //     return $this->hasMany(Handball::class, 'player_id');
+    // }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function getTotalGoals()
+    {
+        return $this->statistics()->sum('goals');
+    }
+
+    public function getTotalAssists()
+    {
+        return $this->statistics()->sum('assists');
+    }
+
+    public function getTotalYellowCards()
+    {
+        return $this->statistics()->sum('yellow_cards');
+    }
+
+    public function getTotalRedCards()
+    {
+        return $this->statistics()->sum('red_cards');
+    }
+
+    public function getTotalHandballs()
+    {
+        return $this->statistics()->sum('handballs');
+    }
+
+    public function getLatestPayment()
+    {
+        return $this->payments()
+            ->where('type', 'monthly_dues')
+            ->where('is_verified', true)
+            ->latest()
+            ->first();
+    }
+
 }

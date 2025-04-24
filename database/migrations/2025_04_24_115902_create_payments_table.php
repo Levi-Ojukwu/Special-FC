@@ -13,14 +13,17 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('amount', 10, 2);
-            $table->string('receipt_image');
+            $table->unsignedBigInteger('user_id');
             $table->enum('type', ['registration', 'monthly_dues']);
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->decimal('amount', 10, 2);
+            $table->string('receipt_image')->nullable();
+            $table->boolean('is_verified')->default(false);
             $table->dateTime('payment_date');
             $table->dateTime('expiry_date')->nullable();
+            $table->integer('progress_percentage')->default(0);
             $table->timestamps();
+            
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

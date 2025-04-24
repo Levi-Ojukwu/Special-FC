@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
+        Schema::create('player_statistics', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('title');
-            $table->text('message');
-            $table->boolean('is_read')->default(false);
-            $table->string('type');
+            $table->unsignedBigInteger('match_id');
+            $table->integer('goals')->default(0);
+            $table->integer('assists')->default(0);
+            $table->integer('yellow_cards')->default(0);
+            $table->integer('red_cards')->default(0);
+            $table->integer('handballs')->default(0);
             $table->timestamps();
             
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('match_id')->references('id')->on('matches')->onDelete('cascade');
         });
     }
 
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('player_statistics');
     }
 };

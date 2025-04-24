@@ -13,13 +13,16 @@ return new class extends Migration
     {
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('home_team_id')->constrained('teams')->onDelete('cascade');
-            $table->foreignId('away_team_id')->constrained('teams')->onDelete('cascade');
-            $table->integer('home_score')->nullable();
-            $table->integer('away_score')->nullable();
+            $table->unsignedBigInteger('home_team_id');
+            $table->unsignedBigInteger('away_team_id');
             $table->dateTime('match_date');
-            $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
+            $table->integer('home_team_score')->nullable();
+            $table->integer('away_team_score')->nullable();
+            $table->boolean('is_played')->default(false);
             $table->timestamps();
+            
+            $table->foreign('home_team_id')->references('id')->on('teams')->onDelete('cascade');
+            $table->foreign('away_team_id')->references('id')->on('teams')->onDelete('cascade');
         });
     }
 
