@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('match_id')->constrained()->onDelete('cascade');
+            $table->foreignId('player_id')->constrained('users')->onDelete('cascade');
+            $table->enum('type', ['yellow', 'red']);
+            $table->integer('minute');
             $table->timestamps();
         });
     }

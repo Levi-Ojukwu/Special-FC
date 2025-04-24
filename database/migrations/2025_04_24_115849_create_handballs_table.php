@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('handballs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('match_id')->constrained()->onDelete('cascade');
+            $table->foreignId('player_id')->constrained('users')->onDelete('cascade');
+            $table->integer('minute');
             $table->timestamps();
         });
     }
