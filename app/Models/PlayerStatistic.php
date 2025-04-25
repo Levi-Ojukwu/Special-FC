@@ -19,11 +19,17 @@ class PlayerStatistic extends Model
         'handballs',
     ];
 
+    /**
+     * Get the user that owns the statistic
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the match that the statistic belongs to
+     */
     public function match()
     {
         return $this->belongsTo(FootballMatch::class);

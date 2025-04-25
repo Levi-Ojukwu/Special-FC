@@ -20,16 +20,25 @@ class Team extends Model
         'points',
     ];
 
+    /**
+     * Get the players of the team
+     */
     public function players()
     {
         return $this->hasMany(User::class);
     }
 
+    /**
+     * Get the home matches for the team
+     */
     public function homeMatches()
     {
         return $this->hasMany(FootballMatch::class, 'home_team_id');
     }
 
+    /**
+     * Get the away matches for the team
+     */
     public function awayMatches()
     {
         return $this->hasMany(FootballMatch::class, 'away_team_id');

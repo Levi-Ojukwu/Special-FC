@@ -23,21 +23,33 @@ class FootballMatch extends Model
         'is_played' => 'boolean',
     ];
 
+    /**
+     * Get the home team of the match
+     */
     public function homeTeam()
     {
         return $this->belongsTo(Team::class, 'home_team_id');
     }
 
+    /**
+     * Get the away team of the match
+     */
     public function awayTeam()
     {
         return $this->belongsTo(Team::class, 'away_team_id');
     }
 
+    /**
+     * Get the statistics of the match
+     */
     public function statistics()
     {
         return $this->hasMany(PlayerStatistic::class);
     }
 
+    /**
+     * Update team statistics after match result
+     */
     public function updateTeamStats()
     {
         $this->homeTeam->updateStats();

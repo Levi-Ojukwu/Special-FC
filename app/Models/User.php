@@ -76,41 +76,34 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // Keep all the existing relationships and methods...
+
+    /**
+     * Get the team that the user belongs to
+     */
     public function team()
     {
         return $this->belongsTo(Team::class);
     }
 
+    /**
+     * Get the statistics for the user
+     */
     public function statistics()
     {
         return $this->hasMany(PlayerStatistic::class);
     }
 
-    // public function goals()
-    // {
-    //     return $this->hasMany(Goal::class, 'player_id');
-    // }
-
-    // public function assists()
-    // {
-    //     return $this->hasMany(Assist::class, 'player_id');
-    // }
-
-    // public function cards()
-    // {
-    //     return $this->hasMany(Card::class, 'player_id');
-    // }
-
-    // public function handballs()
-    // {
-    //     return $this->hasMany(Handball::class, 'player_id');
-    // }
-
+    /**
+     * Get the payments for the user
+     */
     public function payments()
     {
         return $this->hasMany(Payment::class);
     }
 
+    /**
+     * Get the notifications for the user
+     */
     public function notifications()
     {
         return $this->hasMany(Notification::class);
@@ -121,31 +114,49 @@ class User extends Authenticatable implements JWTSubject
         return $this->role === 'admin';
     }
 
+    /**
+     * Get the total goals for the user
+     */
     public function getTotalGoals()
     {
         return $this->statistics()->sum('goals');
     }
 
+    /**
+     * Get the total assists for the user
+     */
     public function getTotalAssists()
     {
         return $this->statistics()->sum('assists');
     }
 
+    /**
+     * Get the total yellow cards for the user
+     */
     public function getTotalYellowCards()
     {
         return $this->statistics()->sum('yellow_cards');
     }
 
+    /**
+     * Get the total red cards for the user
+     */
     public function getTotalRedCards()
     {
         return $this->statistics()->sum('red_cards');
     }
 
+    /**
+     * Get the total handballs for the user
+     */
     public function getTotalHandballs()
     {
         return $this->statistics()->sum('handballs');
     }
 
+    /**
+     * Get the latest payment for the user
+     */
     public function getLatestPayment()
     {
         return $this->payments()

@@ -21,6 +21,9 @@ class Notification extends Model
         'is_read' => 'boolean',
     ];
 
+    /**
+     * Get the user that owns the notification
+     */
     public function user()
     {
         return $this->belongsTo(User::class);

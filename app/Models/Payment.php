@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+// use App\Helpers\Helper;
 
 class Payment extends Model
 {
@@ -27,11 +28,17 @@ class Payment extends Model
         'is_verified' => 'boolean',
     ];
 
+    /**
+     * Get the user that owns the payment
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Update the progress percentage of the payment
+     */
     public function updateProgressPercentage()
     {
         if (!$this->is_verified || !$this->expiry_date) {
