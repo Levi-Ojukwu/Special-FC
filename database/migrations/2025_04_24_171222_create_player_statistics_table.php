@@ -24,6 +24,9 @@ return new class extends Migration
             
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('match_id')->references('id')->on('matches')->onDelete('cascade');
+
+            // Ensure a player can only have one statistic record per match
+            $table->unique(['user_id', 'match_id']);
         });
     }
 

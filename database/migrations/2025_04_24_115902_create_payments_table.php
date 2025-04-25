@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->enum('type', ['registration', 'monthly_dues']);
+            $table->enum('type', ['registration', 'monthly_dues', 'other'])->default('monthly_dues');
             $table->decimal('amount', 10, 2);
             $table->string('receipt_image')->nullable();
             $table->boolean('is_verified')->default(false);
