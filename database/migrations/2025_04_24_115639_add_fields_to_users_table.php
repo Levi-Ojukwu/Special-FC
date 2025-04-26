@@ -12,13 +12,33 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('first_name')->after('id');
-            $table->string('last_name')->after('first_name');
-            $table->string('username')->unique()->after('last_name');
-            $table->foreignId('team_id')->nullable()->after('email')->constrained('teams')->onDelete('set null');
-            $table->boolean('is_admin')->default(false);
-            $table->boolean('is_verified')->default(false);
-            $table->dropColumn('name'); // Remove default name column
+            if (!Schema::hasColumn('users', 'first_name')) {
+                $table->string('first_name')->after('id');
+            }
+
+            if (!Schema::hasColumn('users', 'last_name')) {
+                $table->string('last_name')->after('first_name');
+            }
+
+            if (!Schema::hasColumn('users', 'username')) {
+                $table->string('username')->after('last_name');
+            }
+            
+            if (!Schema::hasColumn('users', 'team_id')) {
+                $table->foreignId('team_id')->nullable()->after('email')->constrained('teams')->onDelete('set null');
+            }
+
+            if (!Schema::hasColumn('users', 'is_admin')) {
+                $table->boolean('is_admin')->default(false);
+            }
+            
+            if (!Schema::hasColumn('users', 'is_verified')) {
+                $table->boolean('is_verified')->default(false);
+            }
+            
+            if (Schema::hasColumn('users', 'name')) {
+                $table->dropColumn('name');
+            }
         });
     }
 

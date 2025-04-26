@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exceptions\Custom\ValidationException;
 use Illuminate\Support\Facades\Validator;
 
 class BaseController extends Controller
@@ -16,7 +15,11 @@ class BaseController extends Controller
         $validator = Validator::make($request->all(), $rules, $messages);
         
         if ($validator->fails()) {
-            throw new ValidationException($validator->errors());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
         
         return $validator->validated();

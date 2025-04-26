@@ -24,6 +24,11 @@ return new class extends Migration
             $table->integer('points')->default(0);
             $table->timestamps();
         });
+
+        // Add foreign key to users table
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('team_id')->references('id')->on('teams')->onDelete('set null');
+        });
     }
 
     /**
@@ -31,6 +36,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['team_id']);
+        });
+        
         Schema::dropIfExists('teams');
     }
 };

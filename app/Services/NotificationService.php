@@ -24,7 +24,7 @@ class NotificationService
     /**
      * Create a notification for all admins
      */
-    public function notifyAdmins($title, $message, $type = 'general')
+    public function notifyAdmins($title, $message, $type = 'admin')
     {
         $admins = User::where('role', 'admin')->get();
         $notifications = [];
@@ -51,19 +51,19 @@ class NotificationService
         return $notifications;
     }
 
-    /**
-     * Mark a notification as read
-     */
-    public function markAsRead($notificationId)
-    {
-        $notification = Notification::find($notificationId);
+    // /**
+    //  * Mark a notification as read
+    //  */
+    // public function markAsRead($notificationId)
+    // {
+    //     $notification = Notification::find($notificationId);
         
-        if ($notification) {
-            $notification->is_read = true;
-            $notification->save();
-            return true;
-        }
+    //     if ($notification) {
+    //         $notification->is_read = true;
+    //         $notification->save();
+    //         return true;
+    //     }
         
-        return false;
-    }
+    //     return false;
+    // }
 }
