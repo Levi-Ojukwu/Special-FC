@@ -75,7 +75,7 @@ $validated = $this->validateRequest($request, [
         /** @var \Tymon\JWTAuth\JWTGuard $auth */
         $auth = auth();
 
-        if (!$token = $auth()->attempt($credentials)) {
+        if (!$token = $auth->attempt($credentials)) {
             return $this->errorResponse('Invalid credentials', 401);
         }
         
@@ -121,7 +121,7 @@ $validated = $this->validateRequest($request, [
         /** @var \Tymon\JWTAuth\JWTGuard $auth */
         $auth = auth();
 
-        $auth()->logout();
+        $auth->logout();
         
         return $this->successResponse(null, 'Successfully logged out');
     }
@@ -134,7 +134,7 @@ $validated = $this->validateRequest($request, [
         /** @var \Tymon\JWTAuth\JWTGuard $auth */
         $auth = auth();
 
-        return $this->respondWithToken($auth()->refresh());
+        return $this->respondWithToken($auth->refresh());
     }
 
     /**
@@ -163,8 +163,8 @@ $validated = $this->validateRequest($request, [
         return $this->successResponse([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => $auth()->factory()->getTTL() * 60,
-            'user' => $auth()->user(),
+            'expires_in' => $auth->factory()->getTTL() * 60,
+            'user' => $auth->user(),
         ]);
     }
 }

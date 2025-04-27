@@ -22,9 +22,9 @@ return [
     ],
     
     'teams' => [
-        'Team A',
-        'Team B',
-        'Team C',
-        'Team D',
+        'Team Red',
+        'Team Black',
+        'Team Pink',
+        'Team Yellow',
     ],
 ];

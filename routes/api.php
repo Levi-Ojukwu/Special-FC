@@ -18,10 +18,15 @@ use App\Http\Controllers\StatisticsController;
 |--------------------------------------------------------------------------
 */
 
+// Test route to verify API is working
+Route::get('/test', function () {
+    return response()->json(['message' => 'API is working!']);
+});
+
 // Public routes
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
-Route::post('reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Protected routes
 Route::group(['middleware' => 'auth:api'], function () {

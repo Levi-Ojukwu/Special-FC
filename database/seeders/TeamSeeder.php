@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Team;
 
@@ -18,8 +17,17 @@ class TeamSeeder extends Seeder
         foreach ($teams as $teamName) {
             Team::create([
                 'name' => $teamName,
-                'color' => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
+                'matches_played' => 0,
+                'matches_won' => 0,
+                'matches_drawn' => 0,
+                'matches_lost' => 0,
+                'goals_for' => 0,
+                'goals_against' => 0,
+                'goal_difference' => 0,
+                'points' => 0,
             ]);
         }
+
+        $this->command->info(count($teams) . ' teams created successfully.');
     }
 }
