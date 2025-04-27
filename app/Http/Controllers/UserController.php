@@ -13,11 +13,14 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends BaseController
 {
     protected $notificationService;
+    protected $fileUploadService;
 
-    public function __construct(NotificationService $notificationService)
+
+    public function __construct(NotificationService $notificationService, FileUploadService $fileUploadService)
     {
         $this->middleware('auth:api');
         $this->notificationService = $notificationService;
+        $this->fileUploadService = $fileUploadService;
     }
 
     /**
@@ -64,14 +67,20 @@ class UserController extends BaseController
             'payment_date' => 'required|date',
         ]);
         
-        // Handle payment proof upload
-        $receiptImage = $request->file('receipt_image');
-        $imageName = time() . '.' . $receiptImage->extension();
-        $receiptImage->storeAs('public/receipts', $imageName);
+        // Upload file and get the result
+        $uploadResult = $this->fileUploadService->uploadFile($request->file('payment_proof'), 'receipts');
+
+        // Extract the filename from the upload result
+        $imageName = $uploadResult['filename'] ?? null;  // Directly access the 'filename' key 
         
+          // If upload failed, return error
+        if (!$imageName) {
+            return $this->errorResponse('Failed to upload payment proof. Please try again.', 500);
+        }
+
         // Calculate expiry date for monthly dues
         $expiryDate = null;
-        if ($validated['type'] === 'monthly_dues') {
+        if ($validated['payment_type'] === 'monthly_dues') {
             $expiryDate = Carbon::parse($validated['payment_date'])->addDays(30);
         }
         
@@ -79,7 +88,7 @@ class UserController extends BaseController
         $payment = Payment::create([
             'user_id' => $user->id,
             'amount' => $validated['amount'],
-            'type' => $validated['type'],
+            'type' => $validated['payment_type'],
             'receipt_image' => 'receipts/' . $imageName,
             'payment_date' => $validated['payment_date'],
             'expiry_date' => $expiryDate,

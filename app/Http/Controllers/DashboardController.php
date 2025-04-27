@@ -118,9 +118,8 @@ class DashboardController extends BaseController
     public function adminDashboard()
     {
         // Check if user is admin
-        $auth = auth();
 
-        if (!$auth()->user()->isAdmin()) {
+        if (!auth()->user()->isAdmin()) {
             return $this->errorResponse('Unauthorized. Admin access required.', 403);
         }
         
@@ -159,9 +158,9 @@ class DashboardController extends BaseController
             ->get();
             
         // Get unread notifications count
-        $auth = auth();
+        // $auth = auth();
 
-        $unreadNotificationsCount = Notification::where('user_id', $auth()->id())
+        $unreadNotificationsCount = Notification::where('user_id', auth()->id())
             ->where('is_read', false)
             ->count();
             

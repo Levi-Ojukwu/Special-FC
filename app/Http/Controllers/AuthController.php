@@ -87,10 +87,10 @@ $validated = $this->validateRequest($request, [
      */
     public function me()
     {
-        /** @var \Tymon\JWTAuth\JWTGuard $auth */
-        $auth = auth();
+        // /** @var \Tymon\JWTAuth\JWTGuard $auth */
+        // $auth = auth();
 
-        $user = $auth()->user();
+        $user = auth()->user();
         $user->load('team');
         
         // Get payment status

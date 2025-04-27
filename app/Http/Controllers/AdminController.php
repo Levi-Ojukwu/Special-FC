@@ -13,7 +13,7 @@ class AdminController extends BaseController
     public function __construct(NotificationService $notificationService)
     {
         $this->middleware('auth:api');
-        $this->middleware('admin');
+        // $this->middleware('admin');
         $this->notificationService = $notificationService;
     }
 
