@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// use App\Http\Controllers\Controller;
 use App\Models\FootballMatch;
 use App\Models\Team;
 use App\Services\NotificationService;
@@ -16,7 +15,7 @@ class FootballMatchController extends BaseController
     public function __construct(NotificationService $notificationService)
     {
         $this->middleware('auth:api');
-        $this->middleware('admin')->only(['store', 'update', 'destroy']);
+        $this->middleware('admin')->only(['store', 'update', 'destroy', 'bulkStore', 'bulkUpdate']);
         $this->notificationService = $notificationService;
     }
 

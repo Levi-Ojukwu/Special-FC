@@ -81,43 +81,53 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::put('read-all', [NotificationController::class, 'markAllAsRead']);
     });
 
-    // Admin routes (admin middleware and prefix 'admin')
-    Route::group(['middleware' => 'admin', 'prefix' => 'admin'], function () {
+  
+});
 
-        // User management
-        Route::prefix('users')->group(function () {
-            Route::get('/', [AdminController::class, 'getUsers']);
-            Route::put('{user}/verify', [AdminController::class, 'verifyUser']);
-            Route::put('{user}/unverify', [AdminController::class, 'unverifyUser']);
-            Route::put('{user}/team', [AdminController::class, 'updateUserTeam']);
-        });
 
-        // Team management
-        Route::prefix('teams')->group(function () {
-            Route::post('/', [TeamController::class, 'store']);
-            Route::put('{team}', [TeamController::class, 'update']);
-            Route::delete('{team}', [TeamController::class, 'destroy']);
-        });
+// Admin routes (admin middleware and prefix 'admin')
+Route::group([
+    'prefix' => 'admin'
+], function () {
 
-        // Match management
-        Route::prefix('matches')->group(function () {
-            Route::post('/', [FootballMatchController::class, 'store']);
-            Route::put('{match}', [FootballMatchController::class, 'update']);
-            Route::delete('{match}', [FootballMatchController::class, 'destroy']);
-        });
+    Route::get('/check', function () {
+        return response()->json(['status' => 'success', 'message' => 'Admin access confirmed']);
+    })->middleware("admin");
 
-        // Statistics management
-        Route::prefix('statistics')->group(function () {
-            Route::post('/', [StatisticsController::class, 'store']);
-            Route::put('{statistic}', [StatisticsController::class, 'update']);
-            Route::delete('{statistic}', [StatisticsController::class, 'destroy']);
-        });
+    // User management
+    Route::prefix('users')->group(function () {
+        Route::get('/', [AdminController::class, 'getUsers']);
+        Route::put('{user}/verify', [AdminController::class, 'verifyUser']);
+        Route::put('{user}/unverify', [AdminController::class, 'unverifyUser']);
+        Route::put('{user}/team', [AdminController::class, 'updateUserTeam']);
+    });
 
-        // Payment management
-        Route::prefix('payments')->group(function () {
-            Route::get('/', [PaymentController::class, 'index']);
-            Route::put('{payment}/verify', [PaymentController::class, 'verifyPayment']);
-            Route::post('{payment}/reject', [PaymentController::class, 'rejectPayment']);
-        });
+    // Team management
+    Route::prefix('teams')->group(function () {
+        Route::get('/', [TeamController::class, 'index']);
+        Route::post('/create', [TeamController::class, 'store']);
+        Route::put('{team}', [TeamController::class, 'update']);
+        Route::delete('{team}', [TeamController::class, 'destroy']);
+    });
+
+    // Match management
+    Route::prefix('matches')->group(function () {
+        Route::post('/', [FootballMatchController::class, 'store']);
+        Route::put('{match}', [FootballMatchController::class, 'update']);
+        Route::delete('{match}', [FootballMatchController::class, 'destroy']);
+    });
+
+    // Statistics management
+    Route::prefix('statistics')->group(function () {
+        Route::post('/', [StatisticsController::class, 'store']);
+        Route::put('{statistic}', [StatisticsController::class, 'update']);
+        Route::delete('{statistic}', [StatisticsController::class, 'destroy']);
+    });
+
+    // Payment management
+    Route::prefix('payments')->group(function () {
+        Route::get('/', [PaymentController::class, 'index']);
+        Route::put('{payment}/verify', [PaymentController::class, 'verifyPayment']);
+        Route::post('{payment}/reject', [PaymentController::class, 'rejectPayment']);
     });
 });

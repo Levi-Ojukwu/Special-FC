@@ -25,7 +25,7 @@ class AuthController extends BaseController
      */
     public function register(Request $request)
     {
-$validated = $this->validateRequest($request, [
+        $validated = $this->validateRequest($request, [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',

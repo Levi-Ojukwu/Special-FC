@@ -56,6 +56,8 @@ class AdminController extends BaseController
     /**
      * Unverify a user.
      */
+
+    
     public function unverifyUser($id)
     {
         $user = User::findOrFail($id);
