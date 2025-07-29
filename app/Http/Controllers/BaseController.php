@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class BaseController extends Controller
@@ -15,13 +14,14 @@ class BaseController extends Controller
     {
         $validator = Validator::make($request->all(), $rules, $messages);
         
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Validation failed',
+        //         'errors' => $validator->errors()
+        //     ], 422);
+        // }
+        $validator->validate();
         
         return $validator->validated();
     }

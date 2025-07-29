@@ -47,7 +47,7 @@ class FootballMatch extends Model
      */
     public function statistics()
     {
-        return $this->hasMany(PlayerStatistic::class);
+        return $this->hasMany(PlayerStatistic::class, 'match_id');
     }
 
     /**
