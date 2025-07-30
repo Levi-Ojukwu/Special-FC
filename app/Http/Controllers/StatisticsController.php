@@ -58,7 +58,7 @@ class StatisticsController extends BaseController
     {
         $validated = $this->validateRequest($request, [
             'user_id' => 'required|exists:users,id',
-            'match_id' => 'required|exists:football_matches,id',
+            'match_id' => 'required|exists:matches,id',
             'goals' => 'required|integer|min:0',
             'assists' => 'required|integer|min:0',
             'yellow_cards' => 'required|integer|min:0|max:2',
