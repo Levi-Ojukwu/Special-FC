@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\Team;
 use App\Services\FileUploadService;
 use App\Services\NotificationService;
 use Carbon\Carbon;
@@ -33,6 +34,20 @@ class UserController extends BaseController
             ->get();
             
         return $this->successResponse($players);
+    }
+
+    /**
+     * Get user by team
+     */
+    public function getUsersByTeam()
+    {
+        $teams = Team::with(['players' => function ($query) {
+            $query->select('id', 'first_name', 'last_name', 'username', 'team_id', 'is_verified');
+        }])->get(['id', 'name']);
+
+        return response()->json([
+            'teams' => $teams
+        ]);
     }
 
     /**

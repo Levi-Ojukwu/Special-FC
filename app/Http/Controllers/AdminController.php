@@ -56,8 +56,6 @@ class AdminController extends BaseController
     /**
      * Unverify a user.
      */
-
-    
     public function unverifyUser($id)
     {
         $user = User::findOrFail($id);
@@ -90,6 +88,10 @@ class AdminController extends BaseController
         ]);
         
         $user = User::findOrFail($id);
+
+        if (!$user->is_verified) {
+            return $this->errorResponse('Only verified players can be assigned to a team.', 403);
+        }
         
         $user->team_id = $validated['team_id'];
         $user->save();
@@ -103,6 +105,28 @@ class AdminController extends BaseController
         );
         
         return $this->successResponse($user, 'User team updated successfully');
+    }
+
+    public function removeUserFromTeam(User $user)
+    {
+        $user->team_id = null;
+        $user->save();
+
+        return response()->json([
+            'message' => 'User removed from team successfully',
+            'user' => $user,
+        ]);
+    }
+
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully'
+        ]);
     }
  
 }

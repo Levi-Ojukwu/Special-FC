@@ -36,9 +36,9 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
     
-    // Dashboard routes
+    // Player Dashboard routes
     Route::prefix('dashboard')->group(function () {
-        Route::get('/', [DashboardController::class, 'index']);
+        Route::get('/', [DashboardController::class, 'userDashboard']);
         Route::get('statistics', [DashboardController::class, 'statistics']);
         Route::get('activities', [DashboardController::class, 'activities']);
     });
@@ -79,6 +79,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/', [NotificationController::class, 'index']);
         Route::put('{notification}/read', [NotificationController::class, 'markAsRead']);
         Route::put('read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::get('unread-count', [NotificationController::class, 'unreadCount']); // 👈 add this
     });
 
   
@@ -87,19 +88,29 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 // Admin routes (admin middleware and prefix 'admin')
 Route::group([
-    'prefix' => 'admin'
+    'prefix' => 'admin',
+    'middleware' => ['auth:api', 'admin']
 ], function () {
 
     Route::get('/check', function () {
         return response()->json(['status' => 'success', 'message' => 'Admin access confirmed']);
     })->middleware("admin");
 
+    // Admin dashboard routes
+    Route::prefix('dashboard')->group(function () {
+        Route::get('stats', [DashboardController::class, 'adminDashboard']);
+        Route::get('statistics', [DashboardController::class, 'statistics']); // global stats
+    });
+
     // User management
     Route::prefix('users')->group(function () {
         Route::get('/', [AdminController::class, 'getUsers']);
+        Route::get('/by-team', [UserController::class, 'getUsersByTeam']);
         Route::put('{user}/verify', [AdminController::class, 'verifyUser']);
         Route::put('{user}/unverify', [AdminController::class, 'unverifyUser']);
         Route::put('{user}/team', [AdminController::class, 'updateUserTeam']);
+        Route::delete('{user}/team', [AdminController::class, 'removeUserFromTeam']);
+        Route::delete('{user}', [AdminController::class, 'deleteUser']);
     });
 
     // Team management
@@ -108,6 +119,7 @@ Route::group([
         Route::post('/create', [TeamController::class, 'store']);
         Route::put('{team}', [TeamController::class, 'update']);
         Route::delete('{team}', [TeamController::class, 'destroy']);
+        Route::get('{id}/players', [TeamController::class, 'getPlayers']);
     });
 
     // Match management
@@ -119,6 +131,8 @@ Route::group([
 
     // Statistics management
     Route::prefix('statistics')->group(function () {
+        Route::get('/', [StatisticsController::class, 'index']);
+        Route::get('player/{playerId}', [StatisticsController::class, 'player']);
         Route::post('/', [StatisticsController::class, 'store']);
         Route::put('{statistic}', [StatisticsController::class, 'update']);
         Route::delete('{statistic}', [StatisticsController::class, 'destroy']);

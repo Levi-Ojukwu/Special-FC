@@ -105,4 +105,16 @@ class TeamController extends BaseController
         
         return $this->successResponse(null, 'Team deleted successfully');
     }
+
+     /**
+     * Get payers.
+     */
+    public function getPlayers($id)
+    {
+        $team = Team::with('players')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'data' => $team->players
+        ]);
+    }
 }

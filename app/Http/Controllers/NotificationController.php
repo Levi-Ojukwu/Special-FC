@@ -52,4 +52,16 @@ class NotificationController extends BaseController
             
         return $this->successResponse(null, 'All notifications marked as read');
     }
+
+    /**
+     * Get unread notifications count.
+     */
+    public function unreadCount()
+    {
+        $count = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        return $this->successResponse(['unread_count' => $count]);
+    }
 }

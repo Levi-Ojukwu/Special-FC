@@ -60,18 +60,38 @@ class DashboardController extends BaseController
         $totalYellowCards = $user->getTotalYellowCards();
         $totalRedCards = $user->getTotalRedCards();
         $totalHandballs = $user->getTotalHandballs();
+
+        // Get matches played
+        $matchesPlayed = PlayerStatistic::where('user_id', $user->id)
+            ->distinct('match_id')
+            ->count();
         
         // Get payment status
         $latestPayment = $user->getLatestPayment();
-        $paymentStatus = null;
+        $paymentStatus = [
+        'registration_paid' => false,
+        'monthly_dues_current' => false,
+        'pending_payments' => 0,
+        'total_paid' => 0,
+    ];
         
+        // if ($latestPayment) {
+        //     $latestPayment->updateProgressPercentage();
+        //     $paymentStatus = [
+        //         'payment_date' => $latestPayment->payment_date,
+        //         'expiry_date' => $latestPayment->expiry_date,
+        //         'progress_percentage' => $latestPayment->progress_percentage,
+        //         'is_expired' => $latestPayment->progress_percentage >= 100,
+        //     ];
+        // }
+
         if ($latestPayment) {
             $latestPayment->updateProgressPercentage();
             $paymentStatus = [
-                'payment_date' => $latestPayment->payment_date,
-                'expiry_date' => $latestPayment->expiry_date,
-                'progress_percentage' => $latestPayment->progress_percentage,
-                'is_expired' => $latestPayment->progress_percentage >= 100,
+                'registration_paid' => true, // adjust logic if you track this separately
+                'monthly_dues_current' => $latestPayment->progress_percentage < 100,
+                'pending_payments' => $latestPayment->progress_percentage >= 100 ? 1 : 0,
+                'total_paid' => $user->payments()->where('is_verified', true)->sum('amount'),
             ];
         }
         
@@ -80,34 +100,73 @@ class DashboardController extends BaseController
             ->where('is_played', true)
             ->orderBy('match_date', 'desc')
             ->take(5)
-            ->get();
+            ->get()
+            ->map(function ($match) {
+                return [
+                    'id' => $match->id,
+                    'homeTeam' => $match->homeTeam ? ['id' => $match->homeTeam->id, 'name' => $match->homeTeam->name] : ['id' => null, 'name' => 'TBD'],
+                    'awayTeam' => $match->awayTeam ? ['id' => $match->awayTeam->id, 'name' => $match->awayTeam->name] : ['id' => null, 'name' => 'TBD'],
+                    'home_team_score' => $match->home_team_score,
+                    'away_team_score' => $match->away_team_score,
+                    'match_date' => $match->match_date,
+                    'is_played' => $match->is_played,
+                ];
+            });
             
         // Get upcoming matches
         $upcomingMatches = FootballMatch::with(['homeTeam', 'awayTeam'])
             ->where('is_played', false)
             ->orderBy('match_date', 'asc')
             ->take(5)
-            ->get();
+            ->get()
+            ->map(function ($match) {
+                return [
+                    'id' => $match->id,
+                    'homeTeam' => $match->homeTeam ? ['id' => $match->homeTeam->id, 'name' => $match->homeTeam->name] : ['id' => null, 'name' => 'TBD'],
+                    'awayTeam' => $match->awayTeam ? ['id' => $match->awayTeam->id, 'name' => $match->awayTeam->name] : ['id' => null, 'name' => 'TBD'],
+                    'match_date' => $match->match_date,
+                    'is_played' => $match->is_played,
+                ];
+            });
             
         // Get unread notifications count
         $unreadNotificationsCount = Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->count();
+
+        // Get recent notifications (last 10 for example)
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
         
         return $this->successResponse([
-            'user' => $user,
-            'team_position' => $teamPosition,
-            'statistics' => [
+            'user_stats' => [
                 'goals' => $totalGoals,
                 'assists' => $totalAssists,
                 'yellow_cards' => $totalYellowCards,
                 'red_cards' => $totalRedCards,
-                'handballs' => $totalHandballs,
+                'matches_played' => $matchesPlayed,
+                'team_position' => $teamPosition,
             ],
+            'team_info' => $user->team ? [
+                'id' => $user->team->id,
+                'name' => $user->team->name,
+                'position' => $teamPosition,
+                'points' => $user->team->points,
+                'matches_played' => $user->team->matches_played,
+                'wins' => $user->team->wins,
+                'draws' => $user->team->draws,
+                'losses' => $user->team->losses,
+                'goals_for' => $user->team->goals_for,
+                'goals_against' => $user->team->goals_against,
+                'goal_difference' => $user->team->goal_difference,
+            ] : null,
             'payment_status' => $paymentStatus,
             'is_verified' => $user->is_verified,
             'recent_matches' => $recentMatches,
             'upcoming_matches' => $upcomingMatches,
+            'notifications' => $notifications,
             'unread_notifications_count' => $unreadNotificationsCount,
         ]);
     }
@@ -182,6 +241,8 @@ class DashboardController extends BaseController
             ->take(5)
             ->values();
             
+        $teams = Team::with('players')->get();
+            
         return $this->successResponse([
             'counts' => [
                 'users' => $userCount,
@@ -190,12 +251,13 @@ class DashboardController extends BaseController
                 'matches' => $matchCount,
                 'pending_payments' => $pendingPaymentsCount,
             ],
-            'recent_registrations' => $recentRegistrations,
-            'pending_payments' => $pendingPayments,
-            'upcoming_matches' => $upcomingMatches,
-            'recent_matches' => $recentMatches,
+            'recent_registrations' => $recentRegistrations ?? [],
+            'pending_payments' => $pendingPayments ?? [],
+            'upcoming_matches' => $upcomingMatches ?? [],
+            'recent_matches' => $recentMatches ?? [],
             'unread_notifications_count' => $unreadNotificationsCount,
-            'top_scorers' => $topScorers,
+            'top_scorers' => $topScorers ?? [],
+            'teams' => $teams ?? [],
         ]);
     }
 
