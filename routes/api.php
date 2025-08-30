@@ -125,6 +125,8 @@ Route::group([
     // Match management
     Route::prefix('matches')->group(function () {
         Route::post('/', [FootballMatchController::class, 'store']);
+        Route::patch('{match}/start', [FootballMatchController::class, 'startMatch']);
+        Route::put('{match}/score', [FootballMatchController::class, 'updateScore']);
         Route::put('{match}', [FootballMatchController::class, 'update']);
         Route::delete('{match}', [FootballMatchController::class, 'destroy']);
     });

@@ -19,6 +19,7 @@ class FootballMatch extends Model
         'home_team_score',
         'away_team_score',
         'is_played',
+        'is_live',
     ];
 
     protected $casts = [

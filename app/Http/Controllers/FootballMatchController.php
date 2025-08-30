@@ -15,7 +15,7 @@ class FootballMatchController extends BaseController
     public function __construct(NotificationService $notificationService)
     {
         $this->middleware('auth:api');
-        $this->middleware('admin')->only(['store', 'update', 'destroy', 'bulkStore', 'bulkUpdate']);
+        $this->middleware('admin')->only(['store', 'update', 'destroy', 'startMatch', 'updateScore']);
         $this->notificationService = $notificationService;
     }
 
@@ -31,6 +31,79 @@ class FootballMatchController extends BaseController
         return $this->successResponse($matches);
     }
 
+    /**
+     * Start a match.
+     */
+    public function startMatch(FootballMatch $match)
+    {
+        if ($match->is_played) {
+            return response()->json(['message' => 'Match already played'], 400);
+        }
+
+        if ($match->is_live) {
+            return response()->json(['message' => 'Match is already live'], 400);
+        }
+
+        $match->is_live = true; // explicitly set
+        $match->save(); 
+
+        // $match->update([
+        //     'is_live' => true,
+        // ]);
+
+        // Load relationships for response
+        $match->load(['homeTeam', 'awayTeam']);
+
+        // Notify users about match start
+        $this->notificationService->notifyAllUsers(
+            'Match Started',
+            "The match between {$match->homeTeam->name} and {$match->awayTeam->name} has started!",
+            'match'
+        );
+
+        return response()->json([
+            'message' => 'Match started successfully',
+            'data' => $match,
+        ]);
+    }
+
+    /**
+     * Update match score - NEW METHOD
+     */
+    public function updateScore(Request $request, FootballMatch $match)
+    {
+        $validated = $this->validateRequest($request, [
+            'home_team_score' => 'required|integer|min:0',
+            'away_team_score' => 'required|integer|min:0',
+            'is_played' => 'sometimes|boolean',
+            'statistics' => 'sometimes|array',
+        ]);
+
+        // Update match scores
+        $match->update([
+            'home_team_score' => $validated['home_team_score'],
+            'away_team_score' => $validated['away_team_score'],
+            'is_played' => $validated['is_played'] ?? $match->is_played,
+            'is_live' => $validated['is_played'] ?? false ? false : $match->is_live, // End live status if match is completed
+        ]);
+
+        // Update team statistics if match is completed
+        if ($validated['is_played'] ?? false) {
+            $match->updateTeamStats();
+            
+            // Load relationships for notification
+            $match->load(['homeTeam', 'awayTeam']);
+            
+            // Notify all users about the match result
+            $this->notificationService->notifyAllUsers(
+                'Match Result',
+                "Final Score: {$match->homeTeam->name} {$match->home_team_score} - {$match->away_team_score} {$match->awayTeam->name}",
+                'match'
+            );
+        }
+
+        return $this->successResponse($match, 'Match score updated successfully');
+    }
 
 
     /**
@@ -77,15 +150,16 @@ class FootballMatchController extends BaseController
             'home_team_score' => 0,
             'away_team_score' => 0,
             'is_played' => false,
+            'is_live' => false,
         ]);
+
+        // Load relationships
+        $match->load(['homeTeam', 'awayTeam']);
         
         // Notify all users about the new match
-        $homeTeam = Team::find($validated['home_team_id']);
-        $awayTeam = Team::find($validated['away_team_id']);
-        
         $this->notificationService->notifyAllUsers(
             'New Match Scheduled',
-            "A new match between {$homeTeam->name} and {$awayTeam->name} has been scheduled for " . $match->match_date->format('d M Y H:i'),
+            "A new match between {$match->homeTeam->name} and {$match->awayTeam->name} has been scheduled for " . date('d M Y H:i', strtotime($match->match_date)),
             'match'
         );
         
@@ -117,6 +191,7 @@ class FootballMatchController extends BaseController
             'away_team_score' => 'sometimes|required|integer|min:0',
             'match_date' => 'sometimes|required|date',
             'is_played' => 'sometimes|boolean',
+            'is_live' => 'sometimes|boolean',
         ]);
         
         // Check if match result is being updated
@@ -134,7 +209,7 @@ class FootballMatchController extends BaseController
             // Notify all users about the match result
             $this->notificationService->notifyAllUsers(
                 'Match Result',
-                "Match result: {$match->homeTeam->name} {$match->home_team_score} - {$match->away_team_score} {$match->awayTeam->name}",
+                "Match result: {$match->home_team->name} {$match->home_team_score} - {$match->away_team_score} {$match->away_team->name}",
                 'match'
             );
         }
