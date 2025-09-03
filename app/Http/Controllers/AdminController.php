@@ -128,5 +128,26 @@ class AdminController extends BaseController
             'message' => 'User deleted successfully'
         ]);
     }
+
+    public function getDashboardStats()
+    {
+        // Pending users (not verified)
+        $pendingUsers = User::where('is_verified', false)->count();
+
+        // Live matches (assuming you have a FootballMatch model with a 'status' column)
+        // $liveMatches = \App\Models\FootballMatch::where('status', 'live')->count();
+        $liveMatches = \App\Models\FootballMatch::where('is_live', true)->count();
+
+        // Total pay (assuming you have a Payment model with an 'amount' column)
+        // $totalPay = \App\Models\Payment::sum('amount');
+        $totalPay = \App\Models\Payment::where('is_verified', true)->sum('amount');
+
+        return response()->json([
+            'pending_users' => $pendingUsers,
+            'live_matches' => $liveMatches,
+            'total_pay' => $totalPay,
+        ]);
+    }
+
  
 }
